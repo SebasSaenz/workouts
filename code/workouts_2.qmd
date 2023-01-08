@@ -101,6 +101,18 @@ weight <- health_df %>%
 ## Plots
 
 ```{r}
+#| label: plotting
+#| message: false
+#| warning: false
+
+calories_arrows <-
+  tibble(
+    x1 = as.Date("2022-03-25"),
+    x2 = as.Date("2022-04-05"),
+    y1 = 1250,
+    y2 = 1200
+  )
+
 calories_plot <- calories %>% 
   ggplot(aes(x = dateComponents,
              y = activeEnergyBurned )) +
@@ -131,8 +143,23 @@ calories_plot <- calories %>%
                                   face = "bold"),
         axis.text = element_text(colour = "white"),
         axis.text.x = element_blank(),
-        plot.margin = unit(c(1,1,1,1), units = "cm"))
+        plot.margin = unit(c(1,1,1,1), units = "cm")) +
+  annotate(
+    "text", x = as.Date("2022-03-10"), y = 1250, size = 3.5, color = "lightgray",
+    face = "bold",
+    lineheight = .9, label = glue::glue("Goal achived")
+    ) +
+  geom_curve(data = calories_arrows, aes(x = x1, y = y1, xend = x2, yend = y2),
+    arrow = arrow(length = unit(0.07, "inch")), size = 0.4,
+    color = "grey", curvature = -0.3)
 
+wk_arrows <-
+  tibble(
+    x1 = as.Date("2022-08-15"),
+    x2 = as.Date("2022-09-07"),
+    y1 = 100,
+    y2 = 52
+  )
 
 wk_plot <- wk_type %>% 
   ggplot(aes(x=date(creationDate),
@@ -164,8 +191,15 @@ wk_plot <- wk_type %>%
         axis.title = element_text(colour = "white",
                                   face = "bold"),
         axis.text = element_text(colour = "white"),
-        axis.text.x = element_blank())
-
+        axis.text.x = element_blank()) +
+  annotate(
+    "text", x = as.Date("2022-08-05"), y = 100, size = 3.5, color = "lightgray",
+    face = "bold",
+    lineheight = .9, label = glue::glue("Workout")
+    ) +
+  geom_curve(data = wk_arrows, aes(x = x1, y = y1, xend = x2, yend = y2),
+    arrow = arrow(length = unit(0.07, "inch")), size = 0.4,
+    color = "grey", curvature = -0.3)
 
 weight_plot <- weight %>% 
   ggplot(aes(x = date(creationDate),
@@ -192,6 +226,8 @@ weight_plot <- weight %>%
 
 plot_all <-  (wk_plot / calories_plot  / weight_plot)
 
+
+
 final_plot <- plot_all + 
   plot_annotation(title = "A YEAR OF DATA",
                   subtitle = "I tracked my workouts, weight and active calories using
@@ -214,5 +250,7 @@ final_plot <- plot_all +
 ## Saving plots
 
 ```{r}
-ggsave(final_plot,file = "plot/workouts.png", width = 12, height = 7, dpi = 400)
+ggsave(final_plot,
+       file = here::here("plot/workouts.png"), 
+       width = 12, height = 7, dpi = 400)
 ```
