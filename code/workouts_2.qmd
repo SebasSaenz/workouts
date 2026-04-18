@@ -38,7 +38,7 @@ library(here)
 #| label: data
 #| message: false
 #| warning: false
-health_xml <- xmlParse(here::here("rawdata/apple_health_export/export.xml"))
+health_xml <- xmlParse(here::here("rawdata/apple_health_export_2025/export.xml"))
 
 health_df <- XML:::xmlAttrsToDataFrame(health_xml["//Record"], 
                                        stringsAsFactors = FALSE) %>%
@@ -71,7 +71,7 @@ calories <- activity_df %>%
   dplyr::mutate(calories_goal = activeEnergyBurned >=activeEnergyBurnedGoal,
                 exercise_goal =appleExerciseTime >=appleExerciseTimeGoal,
                 stand_goal = appleStandHours >= appleStandHoursGoal) %>% 
-  dplyr::filter(year==2022)
+  dplyr::filter(year==2025)
 
 wk_type <- workout_df %>% 
   mutate(creationDate = str_remove(creationDate, " .*"),
@@ -80,9 +80,9 @@ wk_type <- workout_df %>%
                 month = lubridate::month(creationDate, label = TRUE), 
                 day = lubridate::day(creationDate),
                 week = lubridate::week(ymd(creationDate))) %>% 
-  dplyr::filter(year==2022) %>% 
+  dplyr::filter(year==2025) %>% 
   full_join(activity_df, by=c("creationDate"="dateComponents")) %>% 
-  dplyr::filter(year==2022) 
+  dplyr::filter(year==2025) 
 
 weight <- health_df %>%
   filter(type=="HKQuantityTypeIdentifierBodyMass") %>% 
@@ -91,9 +91,9 @@ weight <- health_df %>%
                 month = lubridate::month(creationDate, label = TRUE), 
                 day = lubridate::day(creationDate),
                 week = lubridate::week(ymd(creationDate))) %>% 
-  filter(year == 2022) %>% 
+  filter(year == 2025) %>% 
   full_join(activity_df, by=c("creationDate"="dateComponents")) %>% 
-  filter(year == 2022) 
+  filter(year == 2025) 
   
   
 ```
@@ -107,22 +107,22 @@ weight <- health_df %>%
 
 calories_arrows <-
   tibble(
-    x1 = as.Date("2022-03-25"),
-    x2 = as.Date("2022-04-05"),
+    x1 = as.Date("2025-03-20"),
+    x2 = as.Date("2025-03-06"),
     y1 = 1250,
-    y2 = 1200
+    y2 = 1160
   )
 
 calories_plot <- calories %>% 
   ggplot(aes(x = dateComponents,
              y = activeEnergyBurned )) +
   geom_col(aes(fill=calories_goal))  +
-  scale_y_continuous(limits = c(0, 1500),
+  scale_y_continuous(limits = c(0, 2100),
                      expand = c(0,0)) +
   scale_x_date(date_breaks ="1 month",
                date_minor_breaks = "1 week",
                date_labels = "%B",
-               limits = c(as.Date("2022-01-01"), as.Date("2022-12-31")),
+               limits = c(as.Date("2025-01-01"), as.Date("2025-12-31")),
                expand = c(0, 0)
                ) +
   scale_fill_manual(values = c("#7a04eb", "#1afe49")) +
@@ -145,7 +145,7 @@ calories_plot <- calories %>%
         axis.text.x = element_blank(),
         plot.margin = unit(c(1,1,1,1), units = "cm")) +
   annotate(
-    "text", x = as.Date("2022-03-10"), y = 1250, size = 3.5, color = "lightgray",
+    "text", x = as.Date("2025-03-21"), y = 1350, size = 3.5, color = "lightgray",
     face = "bold",
     lineheight = .9, label = glue::glue("Goal achived")
     ) +
@@ -155,8 +155,8 @@ calories_plot <- calories %>%
 
 wk_arrows <-
   tibble(
-    x1 = as.Date("2022-08-15"),
-    x2 = as.Date("2022-09-07"),
+    x1 = as.Date("2025-08-15"),
+    x2 = as.Date("2025-09-07"),
     y1 = 100,
     y2 = 52
   )
@@ -166,19 +166,20 @@ wk_plot <- wk_type %>%
              y=duration)) +
   geom_point(aes(color=workoutActivityType), 
              size=1,
-             alpha=0.9) +
+             alpha=0.7) +
   scale_x_date(date_breaks = "1 month", 
                date_minor_breaks = "1 week",
                date_labels = "%B",
-               limits = c(as.Date("2022-01-01"), as.Date("2022-12-31")),
+               limits = c(as.Date("2025-01-01"), as.Date("2025-12-31")),
                expand = c(0,0)) +
   scale_color_manual(values = c("#e96d5e", "#ff9760", "#ffe69d", "#6a7e6a",
-                                "#7700a6", "#defe47", "#00b3fe", "#ff184c")) +
+                                "#7700a6", "#defe47", "#00b3fe", "#ff184c",
+                                "grey", "orange", "blue","darkgreen")) +
   labs(x = NULL,
        y = "Time (min)") +
   theme_classic() +
   guides(color = guide_legend(override.aes = list(size = 2),
-                              nrow = 1)) +
+                              nrow = 2)) +
   theme(legend.position = "top",
         legend.title = element_blank(),
         legend.text = element_text(colour = "white"),
@@ -193,7 +194,7 @@ wk_plot <- wk_type %>%
         axis.text = element_text(colour = "white"),
         axis.text.x = element_blank()) +
   annotate(
-    "text", x = as.Date("2022-08-05"), y = 100, size = 3.5, color = "lightgray",
+    "text", x = as.Date("2025-08-05"), y = 100, size = 3.5, color = "lightgray",
     face = "bold",
     lineheight = .9, label = glue::glue("Workout")
     ) +
@@ -206,10 +207,10 @@ weight_plot <- weight %>%
              y = value)) +
   geom_line(color = "#defe47") +
   #geom_hline(yintercept = 90, color = "darkgrey", linetype = "dashed") +
-  scale_y_continuous(limits = c(85, 103)) +
+  scale_y_continuous(limits = c(85, 105)) +
   scale_x_date(date_breaks = "1 month",
                date_labels = "%B",
-               limits = c(as.Date("2022-01-01"), as.Date("2022-12-31")),
+               limits = c(as.Date("2025-01-01"), as.Date("2025-12-31")),
                expand = c(0,0)) +
   labs(x = NULL,
        y = "Weight") +
@@ -229,10 +230,10 @@ plot_all <-  (wk_plot / calories_plot  / weight_plot)
 
 
 final_plot <- plot_all + 
-  plot_annotation(title = "A YEAR OF DATA",
+  plot_annotation(title = "A YEAR OF DATA (2025)",
                   subtitle = "I tracked my workouts, weight and active calories using
-                  a smartwatch during 2022. One of my goals was to <b style='color:#1afe49'>burn 950 active calories</b> 
-                  per day. However, I only<br /> achived that goal between July and August.",
+                  a smartwatch during 2025. One of my goals was to <b style='color:#1afe49'>burn 850 active calories</b> 
+                  per day.",
                   caption = "Visualization by Johan S. Sáenz (@SaenzJohanS) • Data collected with AppleWatch") & 
   theme(plot.background = element_rect(fill = "black"),
         plot.title = element_markdown(family = "American Typewriter",
@@ -251,6 +252,6 @@ final_plot <- plot_all +
 
 ```{r}
 ggsave(final_plot,
-       file = here::here("plot/workouts.png"), 
+       file = here::here("plot/workouts_2025.png"), 
        width = 12, height = 7, dpi = 400)
 ```
